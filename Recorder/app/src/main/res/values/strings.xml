@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PruebaJava</string>
+    <string name="app_name">Recorder</string>
 
     <!-- Messages -->
     <string name="set_permissions_in_settings">Go to Settings -> Apps and Notifications ->
