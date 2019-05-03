@@ -1,44 +1,53 @@
-package com.xxliu95.cameraforeground;
+package com.xxliu95.wifiscannerforeground;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.SurfaceTexture;
-import android.hardware.Camera;
-import android.os.Bundle;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
-import android.view.SurfaceView;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.ListView;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "WifiScanner";
+
     private static final int REQUEST_CODE_PERMISSIONS = 200;
 
     private static final String KEY_PERMISSIONS_REQUEST_COUNT = "KEY_PERMISSIONS_REQUEST_COUNT";
-    private static final int MAX_NUMBER_REQUEST_PERMISSIONS = 1;
+    private static final int MAX_NUMBER_REQUEST_PERMISSIONS = 2;
 
     private static final List<String> sPermissions = Arrays.asList(
-            Manifest.permission.CAMERA,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.CHANGE_WIFI_STATE
     );
 
     private int mPermissionRequestCount;
 
-    private static String fileName = null;
-
-    private Button buttonCapture;
-    private static final String TAG = "CameraForeground";
+    private WifiManager wifiManager;
+    private ListView listView;
+    private Button scanButton;
+    private int size = 0;
+    private List<ScanResult> results;
+    private ArrayList<String> arrayList = new ArrayList<>();
+    private ArrayAdapter adapter;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -96,61 +105,45 @@ public class MainActivity extends AppCompatActivity {
 
         requestPermissionsIfNecessary();
 
-        buttonCapture = (Button) findViewById(R.id.buttonCapture);
-
-        buttonCapture.setOnClickListener(new View.OnClickListener() {
+        scanButton = (Button) findViewById(R.id.scanButton);
+        scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                takePicture();
+                scanWifi();
             }
         });
 
-    }
+        listView = (ListView) findViewById(R.id.wifiList);
+        wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
 
-    private void takePicture()
-    {
-        Toast.makeText(getApplicationContext(), "Image snapshot   Started",Toast.LENGTH_SHORT).show();
-        // here below "this" is activity context.
-        SurfaceView surface = new SurfaceView(this);
-        Camera camera = Camera.open();
-        try {
-            camera.setPreviewTexture(new SurfaceTexture(10));
-            //camera.setPreviewDisplay(surface.getHolder());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if (!wifiManager.isWifiEnabled()) {
+            wifiManager.setWifiEnabled(true);
         }
-        camera.startPreview();
-        camera.takePicture(null,null,jpegCallback);
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, arrayList);
+        listView.setAdapter(adapter);
+
+        scanWifi();
     }
 
+    private void scanWifi() {
+        arrayList.clear();
+        registerReceiver(wifiReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        Log.d(TAG, "scanWifi: scanning");
+    }
 
-    /** picture call back */
-    Camera.PictureCallback jpegCallback = new Camera.PictureCallback() {
-        public void onPictureTaken(byte[] data, Camera camera)
-        {
-            FileOutputStream outStream = null;
-            try {
-                fileName = getExternalCacheDir().getAbsolutePath();
-                fileName += "/recorded_" + System.currentTimeMillis() + ".jpg";
-                outStream = new FileOutputStream(fileName);
-                outStream.write(data);
-                outStream.close();
-                Log.d(TAG, "onPictureTaken - wrote bytes: " + data.length);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally
-            {
-                camera.stopPreview();
-                camera.release();
-                camera = null;
-                Toast.makeText(getApplicationContext(), "Image snapshot Done",Toast.LENGTH_LONG).show();
+    BroadcastReceiver wifiReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            results = wifiManager.getScanResults();
+            unregisterReceiver(this);
+
+            Log.d(TAG, "scanWifi: received");
+
+            for (ScanResult scanResult : results) {
+                arrayList.add(scanResult.SSID + " - " + scanResult.capabilities);
+                adapter.notifyDataSetChanged();
             }
-            Log.d(TAG, "onPictureTaken - jpeg");
         }
     };
-
-
 }
