@@ -1,4 +1,4 @@
-package com.xxliu95.foregroundservice;
+package com.xxliu95.recorderforegroundservice;
 
 import android.app.Application;
 import android.app.NotificationChannel;
@@ -6,7 +6,8 @@ import android.app.NotificationManager;
 import android.os.Build;
 
 public class ServiceChannel extends Application {
-    public static final String CHANNEL_ID = "exampleServiceChannel";
+
+    public static final String CHANNEL_ID = "RecordServiceChannel";
 
     @Override
     public void onCreate() {
@@ -18,8 +19,8 @@ public class ServiceChannel extends Application {
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel serviceChannel = new NotificationChannel(
-                   CHANNEL_ID,
-                   "Example Service Channel",
+                    CHANNEL_ID,
+                    "Recorder Service Channel",
                     NotificationManager.IMPORTANCE_DEFAULT
             );
 
