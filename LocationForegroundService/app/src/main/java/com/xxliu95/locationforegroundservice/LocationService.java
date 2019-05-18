@@ -28,9 +28,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.concurrent.Executor;
-
-import static android.support.v4.app.ActivityCompat.requestPermissions;
 
 
 public class LocationService extends Service {
@@ -61,7 +58,6 @@ public class LocationService extends Service {
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
 
-
         Intent notificationIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,
                 0, notificationIntent, 0); //Esto es para cuando pulsas la notificacion lanza un intent a MainActivity
@@ -79,7 +75,6 @@ public class LocationService extends Service {
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
         } else {
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 fusedLocationProviderClient.getLastLocation().addOnSuccessListener(getMainExecutor(), new OnSuccessListener<Location>() {
                     @Override
