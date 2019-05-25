@@ -15,6 +15,8 @@ import android.view.SurfaceView;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class CameraService extends Service {
 
@@ -22,6 +24,8 @@ public class CameraService extends Service {
     private static final String TAG = "CameraService";
 
     private static String fileName = null;
+
+    private Timer timer;
 
     @Override
     public void onCreate() {
@@ -45,16 +49,19 @@ public class CameraService extends Service {
         startForeground(2, notification);
 
         //do work on background thread
-        try {
-            Log.d(TAG, "onStartCommand: Sleep for 5 seconds");
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        takePicture();
+
+        timer = new Timer();
+        timer.schedule(new Task(), 0, 10000);
 
         return START_NOT_STICKY;
 
+    }
+
+    private class Task extends TimerTask {
+        @Override
+        public void run() {
+            takePicture();
+        }
     }
 
     private void takePicture() {
@@ -97,6 +104,8 @@ public class CameraService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        timer.cancel();
+        timer.purge();
     }
 
     @Nullable
