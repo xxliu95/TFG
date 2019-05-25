@@ -152,17 +152,4 @@ public class LocationService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-
-    private void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-        } else{
-            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, null);
-        }
-    }
-
-    private void stopLocationUpdates() {
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-    }
-
 }

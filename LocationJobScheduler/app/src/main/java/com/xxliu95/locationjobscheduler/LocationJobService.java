@@ -1,76 +1,108 @@
 package com.xxliu95.locationjobscheduler;
 
+import android.Manifest;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.os.Bundle;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.util.Calendar;
 
-import static com.xxliu95.locationjobscheduler.MainActivity.fileName;
+public class LocationJobService extends JobService {
 
-public class LocationJobService extends JobService
-                                implements LocationListener {
-    private static final String TAG = "LocationJobService";
-    private boolean jobCancelled = false;
-    private String loc = "";
+    public static final String TAG = "LocationJobService";
+
+    private static boolean jobCancelled = false;
+
+    private static final int REQUEST_PERMISSION = 101;
+
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
+
+    private static String fileName = null;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
 
     @Override
     public boolean onStartJob(JobParameters params) {
         Log.d(TAG, "Job started");
 
-        doWork(params);
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(5000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getApplicationContext());
+
+        doJob(params);
 
         return true;
     }
 
-    private void doWork(final JobParameters params) {
+    private void doJob(final JobParameters params) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int i = 0; i < 10; i++) {
-                    Log.d(TAG, "run: " + fileName);
+                if (jobCancelled)
+                    return;
+                if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
-
-                    final File file = new File(fileName);
-
-                    if (!file.exists()) {
-                        try {
-                            file.createNewFile();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    try {
-                        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
-                                new FileOutputStream(fileName)
-                        );
-                        outputStreamWriter.append(loc);
-                        outputStreamWriter.close();
-                    }
-                    catch (IOException e) {
-                        Log.e("Exception", "File write failed: " + e.toString());
-                    }
-                    if (jobCancelled) {
-                        return;
-                    }
-                    try {
-                        Thread.sleep( 1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(getMainExecutor(), new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                if (location != null) {
+                                    setResult(location);
+                                    Log.d(TAG,"getLastLocation(); latitud: " + location.getLatitude() + " longitud: " + location.getLongitude() ) ;
+                                }
+                            }
+                        });
                     }
                 }
-                Log.d(TAG, "run: finished");
+                Log.d(TAG, "Job Finished");
                 jobFinished(params, false);
             }
         }).start();
+ }
+
+    private void setResult(Location location) {
+        fileName = getExternalCacheDir().getAbsolutePath();
+        fileName += "/location_" + System.currentTimeMillis() + ".txt";
+
+        Log.d(TAG, "setResult: fileName: " + fileName);
+
+        String latitud = String.valueOf(location.getLatitude());
+        String longitud = String.valueOf(location.getLongitude());
+
+        File file = new File(fileName);
+
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write(("latitud: " + latitud + "\nlongitud: " + longitud).getBytes());
+            fileOutputStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -78,32 +110,5 @@ public class LocationJobService extends JobService
         Log.d(TAG, "Job cancelled");
         jobCancelled = true;
         return true;
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        location.getLatitude();
-        location.getLongitude();
-
-        loc = "time: " + Calendar.getInstance().getTime() +
-                "latitude: " +  location.getLatitude() +
-                "longitude: " + location.getLongitude();
-        Log.d(TAG, " "+loc);
-
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
     }
 }
