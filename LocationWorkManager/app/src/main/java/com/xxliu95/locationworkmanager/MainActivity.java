@@ -48,7 +48,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    /**
+     * Requerir permisos al usuario
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -66,6 +72,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Crea un work request con un retraso de un minuto
+     */
     public void startWork() {
         //PeriodicWorkRequest
         //Funciona cada 15 minutos minimo

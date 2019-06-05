@@ -33,6 +33,12 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     private static String fileName = null;
 
+    /**
+     * Al recibir la alarm realiza tareas en segundo plano
+     *
+     * @param context
+     * @param intent
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "Alarm received");
@@ -43,6 +49,9 @@ public class AlarmReceiver extends BroadcastReceiver {
         getLocation(context);
     }
 
+    /**
+     * Inicializar el locationRequest
+     */
     private void setupRequest() {
         locationRequest = new LocationRequest();
         locationRequest.setInterval(10000);
@@ -50,6 +59,11 @@ public class AlarmReceiver extends BroadcastReceiver {
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
+    /**
+     * Inicializa el callback
+     *
+     * @param context
+     */
     private void setLocationRequest(final Context context) {
 
         locationCallback = new LocationCallback() {
@@ -70,10 +84,18 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     }
 
+    /**
+     * Quita los location updates
+     */
     private void stopLocationRequest() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
+    /**
+     * Obtiene el última localización y llama a setResult para que lo guarde en un fichero
+     *
+     * @param context
+     */
     private void getLocation(final Context context) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
@@ -92,6 +114,12 @@ public class AlarmReceiver extends BroadcastReceiver {
         }
     }
 
+    /**
+     * Recibe un localización y lo guarda en un fichero txt
+     *
+     * @param context
+     * @param location
+     */
     private void setResult(Context context, Location location) {
         fileName = context.getExternalCacheDir().getAbsolutePath();
         fileName += "/location_" + System.currentTimeMillis() + ".txt";

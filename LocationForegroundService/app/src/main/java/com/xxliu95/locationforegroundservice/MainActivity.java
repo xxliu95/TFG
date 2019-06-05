@@ -29,7 +29,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Create notification channel
+        /*
+            Para versiones de Android mayor que OREO hay que crear un NotificationChannel para
+            gestionar todas las notificaciones
+         */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
@@ -70,6 +73,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Requerir permisos al usuario
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -87,6 +97,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Llama al servicio LocationService y empieza un Foreground Service
+     */
     public void startService() {
         Intent serviceIntent = new Intent(this, LocationService.class);
 
@@ -94,6 +107,9 @@ public class MainActivity extends AppCompatActivity {
         ContextCompat.startForegroundService(this, serviceIntent);
     }
 
+    /**
+     * Para el Foreground Service
+     */
     public void stopService() {
         Intent serviceIntent = new Intent(this, LocationService.class);
         stopService(serviceIntent);

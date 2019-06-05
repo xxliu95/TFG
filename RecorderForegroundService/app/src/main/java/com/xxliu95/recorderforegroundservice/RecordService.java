@@ -19,6 +19,14 @@ public class RecordService extends Service {
         super.onCreate();
     }
 
+    /**
+     * Crea una notificación y ejecuta en segundo plano para grabar voz
+     *
+     * @param intent
+     * @param flags
+     * @param startId
+     * @return
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 

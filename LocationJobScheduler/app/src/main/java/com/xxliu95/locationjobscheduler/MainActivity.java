@@ -59,6 +59,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Requerir permisos al usuario
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -76,6 +83,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Crea un job para que lo organice el JobScheduler
+     */
     public void scheduleJob() {
         ComponentName componentName = new ComponentName(this, LocationJobService.class);
 
@@ -94,6 +104,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Job cancelado
+     */
     public void cancelJob() {
         JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
         scheduler.cancel(123);

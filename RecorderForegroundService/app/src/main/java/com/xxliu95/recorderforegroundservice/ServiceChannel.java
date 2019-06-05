@@ -16,6 +16,9 @@ public class ServiceChannel extends Application {
         createNotificationChannel();
     }
 
+    /**
+     * Crea un canal de notificaciones
+     */
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel serviceChannel = new NotificationChannel(

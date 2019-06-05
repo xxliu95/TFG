@@ -42,6 +42,9 @@ public class LocationService extends Service {
 
     private static String fileName = null;
 
+    /**
+     * Inicializar el locationRequest
+     */
     @Override
     public void onCreate() {
         super.onCreate();
@@ -52,6 +55,15 @@ public class LocationService extends Service {
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
+    /**
+     * Crea una notificación y ejecuta en segundo plano para obtener localizaciones
+     * getMainExecutor() solo funciona desde Android version P
+     *
+     * @param intent
+     * @param flags
+     * @param startId
+     * @return
+     */
     @SuppressLint("MissingPermission")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -106,6 +118,12 @@ public class LocationService extends Service {
         return START_NOT_STICKY; //START_REDELIVER_INTENT mirar documentacion
     }
 
+    /**
+     * Recibe un localización y lo guarda en un fichero txt
+     * Actualiza la notificación con la nueva localización
+     *
+     * @param location
+     */
     private void setResult(Location location) {
         fileName = getExternalCacheDir().getAbsolutePath();
         fileName += "/location_" + System.currentTimeMillis() + ".txt";

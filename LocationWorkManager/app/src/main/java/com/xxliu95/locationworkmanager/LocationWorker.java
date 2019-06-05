@@ -36,6 +36,12 @@ public class LocationWorker extends Worker {
 
     private static String fileName = null;
 
+    /**
+     * Inicializar el locationRequest
+     *
+     * @param context
+     * @param workerParams
+     */
     public LocationWorker(
             @NonNull Context context,
             @NonNull WorkerParameters workerParams) {
@@ -47,6 +53,11 @@ public class LocationWorker extends Worker {
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
     }
 
+    /**
+     * Llama a los métodos para ejecutarlos en segundo plano
+     *
+     * @return
+     */
     @NonNull
     @Override
     public Result doWork() {
@@ -57,6 +68,9 @@ public class LocationWorker extends Worker {
         return Result.success();
     }
 
+    /**
+     * Inicializa el callback
+     */
     private void setLocationRequest() {
 
         locationCallback = new LocationCallback() {
@@ -77,10 +91,16 @@ public class LocationWorker extends Worker {
 
     }
 
+    /**
+     * Quita los location updates
+     */
     private void stopLocationRequest() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 
+    /**
+     * Obtiene el última localización y llama a setResult para que lo guarde en un fichero
+     */
     private void getLocation() {
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
@@ -99,6 +119,11 @@ public class LocationWorker extends Worker {
         }
     }
 
+    /**
+     * Recibe un localización y lo guarda en un fichero txt
+     *
+     * @param location
+     */
     private void setResult(Location location) {
         fileName = getApplicationContext().getExternalCacheDir().getAbsolutePath();
         fileName += "/location_" + System.currentTimeMillis() + ".txt";

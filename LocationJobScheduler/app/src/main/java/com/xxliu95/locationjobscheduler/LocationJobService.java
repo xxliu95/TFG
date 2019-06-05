@@ -12,7 +12,6 @@ import android.util.Log;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -40,6 +39,11 @@ public class LocationJobService extends JobService {
         super.onCreate();
     }
 
+    /**
+     * Inicializar el locationRequest y llama a los métodos para ejecutarlos en segundo plano
+     *
+     * @return
+     */
     @Override
     public boolean onStartJob(JobParameters params) {
         Log.d(TAG, "Job started");
@@ -56,6 +60,11 @@ public class LocationJobService extends JobService {
         return true;
     }
 
+    /**
+     * Crea un thread para el job
+     *
+     * @param params
+     */
     private void doJob(final JobParameters params) {
         new Thread(new Runnable() {
             @Override
@@ -81,8 +90,13 @@ public class LocationJobService extends JobService {
                 jobFinished(params, false);
             }
         }).start();
- }
+     }
 
+    /**
+     * Recibe un localización y lo guarda en un fichero txt
+     *
+     * @param location
+     */
     private void setResult(Location location) {
         fileName = getExternalCacheDir().getAbsolutePath();
         fileName += "/location_" + System.currentTimeMillis() + ".txt";
@@ -105,6 +119,12 @@ public class LocationJobService extends JobService {
         }
     }
 
+    /**
+     * Pone el boolean jobCancelled en true
+     *
+     * @param params
+     * @return
+     */
     @Override
     public boolean onStopJob(JobParameters params) {
         Log.d(TAG, "Job cancelled");

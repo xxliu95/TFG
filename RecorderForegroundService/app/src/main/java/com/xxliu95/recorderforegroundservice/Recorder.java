@@ -6,18 +6,32 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Clase Recorder con las útiles para grabar voz
+ */
 public class Recorder {
     private MediaRecorder recorder = null;
 
     private static Recorder instance = null;
 
     public Recorder() {}
+
+    /**
+     * Singleton
+     *
+     * @return la instancia
+     */
     public static Recorder getInstance() {
         if (instance == null)
                 instance = new Recorder();
         return instance;
     }
 
+    /**
+     * Graba y guarda el archivo en fileName
+     *
+     * @param fileName
+     */
     protected void startRecording(String fileName) {
         File file = new File(fileName);
 
@@ -40,6 +54,9 @@ public class Recorder {
         }
     }
 
+    /**
+     * Para de grabar
+     */
     protected void stopRecording() {
         if(recorder != null) {
             recorder.stop();

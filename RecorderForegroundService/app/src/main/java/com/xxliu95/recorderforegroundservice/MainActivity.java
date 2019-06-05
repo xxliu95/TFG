@@ -43,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
         outState.putInt(KEY_PERMISSIONS_REQUEST_COUNT, mPermissionRequestCount);
     }
 
+    /**
+     * Requiere los permisos si son necesarios
+     */
     private void requestPermissionsIfNecessary() {
         if (!checkAllPermissions()) {
             if (mPermissionRequestCount < MAX_NUMBER_REQUEST_PERMISSIONS) {
@@ -57,6 +60,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Chequea si tienen todos los permisos
+     *
+     * @return
+     */
     private boolean checkAllPermissions() {
         boolean hasPermissions = true;
         for (String permission : sPermissions) {
@@ -67,8 +75,13 @@ public class MainActivity extends AppCompatActivity {
         return hasPermissions;
     }
 
-    /** Permission Checking **/
-
+    /**
+     * Requerir permisos al usuario
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(
             int requestCode,
@@ -118,6 +131,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Crea un intento al servicio RecordService que es un Foreground Service
+     */
     public void startRecording() {
         fileName = getExternalCacheDir().getAbsolutePath();
         fileName += "/recorded_" + System.currentTimeMillis() + ".mp3";
@@ -130,6 +146,9 @@ public class MainActivity extends AppCompatActivity {
         ContextCompat.startForegroundService(this, serviceIntent);
     }
 
+    /**
+     * Para el Foreground Service
+     */
     public void stopRecording() {
         Intent serviceIntent = new Intent(this, RecordService.class);
         stopService(serviceIntent);

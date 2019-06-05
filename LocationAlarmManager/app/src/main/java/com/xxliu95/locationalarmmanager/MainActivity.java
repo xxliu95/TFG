@@ -51,13 +51,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Requerir permisos al usuario
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         switch (requestCode) {
             case REQUEST_PERMISSION:
-
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 
                 } else {
@@ -68,6 +74,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Crea un intent que lo va a escuchar AlarmReceiver que extiende a BroadcastReceiver
+     *
+     * @param c
+     */
     private void startAlarm(Calendar c) {
         String time = DateFormat.getTimeInstance(DateFormat.LONG).format(c.getTime());
         Log.d(TAG, "startAlarm: at " + time);
@@ -79,6 +90,10 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 1, intent, 0);
 
+        /*
+            setExact pone una alarma a la hora exacta
+            RTC realiza el intento sin despertar el dispositivo
+         */
         alarmManager.setExact(AlarmManager.RTC, c.getTimeInMillis(), pendingIntent);
     }
 }
