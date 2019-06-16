@@ -37,7 +37,7 @@ def searchPermissions(apk):
 		# Iterate over all the uses-permission nodes
 		for node in nodes:
 			w.writerow([node.getAttribute('android:name')])
-
+		
 		w.writerow([])
 
 def searchFeatures(apk):
@@ -58,7 +58,7 @@ def searchFeatures(apk):
 		# Iterate over all the uses-feature nodes
 		for node in nodes:
 			w.writerow([node.getAttribute('android:name')])
-
+		
 		w.writerow([])
 
 def searchServices(apk):
@@ -83,7 +83,7 @@ def searchServices(apk):
 				w.writerow(["Job service", node.getAttribute('android:name')])
 			else:
 				w.writerow(["Service", node.getAttribute('android:name')])
-
+		
 
 def searchBroadcastReceiver(apk):
 
@@ -104,7 +104,7 @@ def searchBroadcastReceiver(apk):
 		# Iterate over all the service nodes
 		for node in nodes:
 				w.writerow(["Receiver", node.getAttribute('android:name')])
-
+		
 def extractApk(apk):
 	os.system('apktool d ../apks/{}.apk -o ../report/{}/filesExtracted'.format(apk, apk))
 
@@ -118,7 +118,7 @@ def callgraph(apk, file, methods):
 		next(reader)
 		lista_metodos = []
 		for line in reader:
-			metodo = line[0].strip().replace("/",".").replace(";","")[3:-1]
+			metodo = line[0].strip().replace("/",".").replace(";","")[3:-1] 
 			utilizado = line[1].strip().replace("/",".").replace(";","")[3:-1]
 			lista_metodos.append([metodo, utilizado])
 
@@ -127,11 +127,10 @@ def callgraph(apk, file, methods):
 		with open(file, 'w', encoding='utf-8') as f:
 			writer = csv.writer(f)
 			writer.writerow(["Tipo", "Clase", "Metodo"])
-
 			# Busca si en la lista de metodos si esta en un servicio
 			for l in readersr:
 				for linea in lista_metodos:
-					if linea[1] == l[1]:
+					if l[1] in linea[1]:
 						writer.writerow([l[0], l[1], linea[0]])
 
 def analyze(apk,  methods, permission=False, feature=False):
@@ -142,7 +141,7 @@ def analyze(apk,  methods, permission=False, feature=False):
 		searchPermissions(apk)
 	if feature:
 		searchFeatures(apk)
-
+	
 	searchServices(apk)
 	searchBroadcastReceiver(apk)
 	callgraph(apk, file, methods)
@@ -153,7 +152,7 @@ if __name__ == '__main__':
 
 	apk = args.apk
 	methods = args.methods
-
+	
 	if args.methods is not None:
 		methods = args.methods
 	else:
@@ -161,5 +160,7 @@ if __name__ == '__main__':
 
 	if not os.path.exists('../report/{}/filesExtracted'.format(apk)):
 		extractApk(apk)
-
+		
 	analyze(apk, methods, args.permission, args.feature)
+
+	
